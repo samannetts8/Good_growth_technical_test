@@ -23,8 +23,7 @@ export default async function weather_fetch(latitude, longitude) {
       throw new Error("Empty data set received from weather API");
     }
 
-    const cod = result.cod;
-    return cod;
+    return result;
   } catch (error) {
     console.log(`Weather fetch failed: ${error.message}`);
     throw error;

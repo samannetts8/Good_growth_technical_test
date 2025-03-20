@@ -17,6 +17,11 @@ export default function lonlatRetriever(html_file) {
     "propertyViewOnGoogleMaps_image"
   );
 
+  // Browser Version:
+  // const google_map_tag = document.getElementById(
+  //   "propertyViewOnGoogleMaps_image"
+  // );
+
   if (!google_map_tag) {
     handleError("No Google Maps Element Detected");
   }
@@ -52,7 +57,5 @@ export default function lonlatRetriever(html_file) {
   };
   return result;
 }
-
-
 
 // const google_map_element = html.getElementbyId("propertyViewOnGoogleMaps_image")

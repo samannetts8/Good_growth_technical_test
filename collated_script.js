@@ -12,8 +12,8 @@ const html_file = fs.readFileSync(
 
 async function collated_script(html_file) {
   const { latitude, longitude } = webpage_scraper(html_file);
-  const cod = await weather_fetch(latitude, longitude);
-  console.log(cod);
+  const result = await weather_fetch(latitude, longitude);
+  return result;
 }
 
-console.log(collated_script(html_file));
+console.log(await collated_script(html_file));
