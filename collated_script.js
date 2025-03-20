@@ -1,6 +1,6 @@
-function lonlatRetriever(string_file) {
+function lonlatRetriever(string_DOM) {
   const parser = new DOMParser();
-  const html_file = parser.parseFromString(string_file, "text/html");
+  const html_file = parser.parseFromString(string_DOM, "text/html");
 
   //find google maps element in HTML
   const google_map_tag = html_file.getElementById(
@@ -149,8 +149,8 @@ function addElement(element) {
 }
 
 async function collated_script() {
-  const string_file = document.documentElement.innerHTML;
-  const { latitude, longitude } = lonlatRetriever(string_file);
+  const string_DOM = document.documentElement.innerHTML;
+  const { latitude, longitude } = lonlatRetriever(string_DOM);
   const result = await weather_fetch(latitude, longitude);
   const element = createWeatherDiv(result);
   addElement(element);
