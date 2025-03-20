@@ -135,48 +135,52 @@ export function createWeatherDiv(weatherData) {
   const icon_url = `http://openweathermap.org/img/wn/${icon}@2x.png`;
 
   const weather_div = document.createElement("div");
-  weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
   weather_div.id = `place-weather`;
+  weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
   weather_div.innerHTML = `
-  <div class="accordion-item is-open">
-      <h3 class="accordion-header">
-          <button class="accordion-button" aria-expanded="true">
-              Today's Weather
-              <svg aria-hidden="true" class="icon icon-chevron-up">
-                  <use xlink:href="#icon-chevron-up"></use>
-              </svg>
-          </button>
-      </h3>
-      <div class="accordion-content" aria-hidden="false">
-          <!-- Weather content structure -->
-          <div class="weather-widget">
-          <h4>${main}</h4>
-                        <img src="${icon_url}" alt="${description}" />
-
-              <h5 class="weather-temp">${Math.round(temp)}°C</h5>
-              <div class="weather-temp">Min:${Math.round(
-                temp_min
-              )}°C, Max:${Math.round(temp_max)}°C</div>
-              <div class="weather-details">
-                  <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
-                  <div>Rain (Last 3 hours): ${rain["3h"]} mm</div>
-              </div>
-          </div>
+  <h2 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 bZUtjF">
+    <button aria-expanded="false" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
+      <span class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 AccordionItemstyle__StyledAccordionItemHeading-sc-zx14w3-0 bZUtjF fcsAzv">Today's Weather</span>
+      <div class="SingleAccordionstyle__StyledIconWrapper-sc-1i82miq-0 fNhssB">
+        <span class="Iconstyle__SVGWrapper-sc-461blh-0 hJKaYd SingleAccordionstyle__StyledIcon-sc-1i82miq-1 FYAss" data-ui-icon-type="chevronDown">
+          <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="100%" height="100%">
+            <g><path d="M1.4,3.5L8,10.1l6.6-6.6L16,4.9l-7.3,7.3c-0.2,0.2-0.4,0.3-0.7,0.3c-0.3,0-0.5-0.1-0.7-0.3L0,4.9L1.4,3.5z"></path></g>
+          </svg>
+        </span>
       </div>
+    </button>
+  </h2>
+  <div id="accordion-item-body--place-weather" aria-hidden="true" aria-labelledby="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionBody-sc-1i82miq-4 fwPNxK accordion-item-collapsed" style="--calc-height: 0px; visibility: hidden;">
+    <div>
+      <section class="Sectionstyle__StyledSection-sc-1rnt8u1-0 eigAqT">
+        <div class="Sectionstyle__Inner-sc-1rnt8u1-1 hopRYb">
+          <div class="Sectionstyle__Content-sc-1rnt8u1-3">
+            <div class="weather-widget">
+              <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC">${main}</h4>
+              <img src="${icon_url}" alt="${description}" />
+              <h5 class="weather-temp">${Math.round(temp)}°C</h5>
+              <div class="weather-temp">Min: ${Math.round(
+                temp_min
+              )}°C, Max: ${Math.round(temp_max)}°C</div>
+              <div class="weather-details">
+                <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
+                <div>Rain (Last 3 hours): ${rain["3h"]} mm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 `;
   return weather_div;
 }
 
-export function addElement(element) {
+export function addElement() {
+  const element = createWeatherDiv(example_weather_data);
   const targetNeighbour = document.getElementById(`place-opening-times`);
   targetNeighbour.parentElement.insertBefore(
     element,
     targetNeighbour.nextSibling
   );
 }
-
-// document.addEventListener("DOMContentLoaded", () => {
-//   const element = createWeatherDiv(example_weather_data);
-//   addElement(element);
-// });
