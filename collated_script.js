@@ -1,7 +1,8 @@
 import webpage_scraper from "./webpage_scraper.js";
 import fs from "fs";
 import weather_fetch from "./weather_fetch.js";
-// import {createWeatherDiv,addElement} from './create_weather_div.js'
+import { addElement, createWeatherDiv } from "./create_weather_div.js";
+import { resourceLimits } from "worker_threads";
 
 const html_file = fs.readFileSync(
   new URL(
@@ -14,8 +15,11 @@ const html_file = fs.readFileSync(
 async function collated_script(html_file) {
   const { latitude, longitude } = webpage_scraper(html_file);
   const result = await weather_fetch(latitude, longitude);
-
-  return result.slice(36);
+  const element = createWeatherDiv(result)
+  
+  return result;
 }
 
-console.log(await collated_script(html_file));
+document.addEventListener("DOMContentLoaded", async () => {
+  await collated_script(html_file);
+});

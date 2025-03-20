@@ -168,8 +168,7 @@ function createWeatherDiv(weatherData) {
   return weather_div;
 }
 
-function addElement() {
-  const element = createWeatherDiv(example_weather_data);
+function addElement(element) {
   const targetNeighbour = document.getElementById(`place-opening-times`);
   targetNeighbour.parentElement.insertBefore(
     element,
@@ -178,5 +177,6 @@ function addElement() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  addElement();
+  const element = createWeatherDiv(example_weather_data);
+  addElement(element);
 });
