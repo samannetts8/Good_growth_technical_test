@@ -35,3 +35,7 @@ function addElement() {
   targetNeighbour.parentElement.insertBefore(element, targetNeighbour);
   console.log("weather div insterted");
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  addElement();
+});
