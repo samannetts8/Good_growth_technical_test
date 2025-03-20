@@ -53,4 +53,6 @@ export default function lonlatRetriever(html_file) {
   return result;
 }
 
+
+
 // const google_map_element = html.getElementbyId("propertyViewOnGoogleMaps_image")
