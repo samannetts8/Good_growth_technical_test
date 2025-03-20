@@ -10,5 +10,4 @@ export default function lonlatRetriever(html) {
   return output;
 }
 
-
 // const google_map_element = html.getElementbyId("propertyViewOnGoogleMaps_image")
