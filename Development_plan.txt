@@ -2,3 +2,16 @@
 
 Create a webpage scraper to flexibly extract the longitude and latitude of the property's location. Current plan is to extract the embedded Google Maps data to retrieve this, but I'll continue to investigate
 Incorporate TDD 
+
+
+
+Faced issues:
+
+Not every page having the same parent / child elements. Had to search to find consistent presence
+    Found opening times was always there
+
+
+Fix for "Module source URI not allowed" Error
+This error occurs because modern browsers enforce strict security policies that prevent loading JavaScript modules directly from the local filesystem ( protocol).
+    This happened when importing the collated_script.js into packwood house
+    I installed -g http-server

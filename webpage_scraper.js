@@ -1,19 +1,14 @@
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { JSDOM } from "jsdom";
-
 function handleError(message) {
   console.error(`Error: ${message}`);
   return null;
 }
 
-export default function lonlatRetriever(html_file) {
-  //JSDOM is used to convert the example HTML into DOM structure
-  const DOM_document = new JSDOM(html_file).window.document;
+export default function lonlatRetriever(string_file) {
+  const parser = new DOMParser();
+  const html_file = parser.parseFromString(string_file, "text/html");
 
   //find google maps element in HTML
-  const google_map_tag = DOM_document.getElementById(
+  const google_map_tag = html_file.getElementById(
     "propertyViewOnGoogleMaps_image"
   );
 

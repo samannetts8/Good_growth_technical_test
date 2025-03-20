@@ -123,7 +123,7 @@ function getWindDirectionArrow(wind_direction_deg) {
   return arrows[Math.round(wind_direction_deg / 45) % 8];
 }
 
-function createWeatherDiv(weatherData) {
+export function createWeatherDiv(weatherData) {
   const {
     main: { temp, temp_min, temp_max },
     wind: { speed, deg },
@@ -168,7 +168,7 @@ function createWeatherDiv(weatherData) {
   return weather_div;
 }
 
-function addElement(element) {
+export function addElement(element) {
   const targetNeighbour = document.getElementById(`place-opening-times`);
   targetNeighbour.parentElement.insertBefore(
     element,
@@ -176,7 +176,7 @@ function addElement(element) {
   );
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const element = createWeatherDiv(example_weather_data);
-  addElement(element);
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const element = createWeatherDiv(example_weather_data);
+//   addElement(element);
+// });
