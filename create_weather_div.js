@@ -129,9 +129,10 @@ function createWeatherDiv(weatherData) {
     wind: { speed, deg },
     rain,
   } = weatherData[0];
-  console.log(weatherData[0].weather[0]);
-  const condition = weatherData[0].weather[0].main;
+  const { main, description, icon } = weatherData[0].weather[0];
   const arrow = getWindDirectionArrow(deg);
+
+  const icon_url = `http://openweathermap.org/img/wn/${icon}@2x.png`;
 
   const weather_div = document.createElement("div");
   weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
@@ -149,26 +150,31 @@ function createWeatherDiv(weatherData) {
       <div class="accordion-content" aria-hidden="false">
           <!-- Weather content structure -->
           <div class="weather-widget">
-          <h3>${condition}</h3>
-              <div class="weather-temp">${Math.round(temp)}°C</div>
+          <h4>${main}</h4>
+                        <img src="${icon_url}" alt="${description}" />
+
+              <h5 class="weather-temp">${Math.round(temp)}°C</h5>
               <div class="weather-temp">Min:${Math.round(
                 temp_min
               )}°C, Max:${Math.round(temp_max)}°C</div>
               <div class="weather-details">
-                  <div>Wind: ${arrow} ${Math.round(speed)} m/s</div>
+                  <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
                   <div>Rain (Last 3 hours): ${rain["3h"]} mm</div>
               </div>
           </div>
       </div>
-  </div>  
+  </div>
 `;
   return weather_div;
 }
 
 function addElement() {
   const element = createWeatherDiv(example_weather_data);
-  const targetNeighbour = document.getElementById(`place-prices`);
-  targetNeighbour.parentElement.insertBefore(element, targetNeighbour);
+  const targetNeighbour = document.getElementById(`place-opening-times`);
+  targetNeighbour.parentElement.insertBefore(
+    element,
+    targetNeighbour.nextSibling
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
