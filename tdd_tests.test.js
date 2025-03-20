@@ -7,7 +7,10 @@ describe("Longitude, Latitude Retrieval", () => {
   it("should extract specific Latitude and Longitude from Packwood URL", () => {
     //Arrange
     const html_file = fs.readFileSync(
-      new URL("./packwood_house_page_source.html", import.meta.url),
+      new URL(
+        "./sample_page_sources/packwood_house_page_source.html",
+        import.meta.url
+      ),
       "utf8"
     );
     //Act
@@ -22,7 +25,7 @@ describe("Longitude, Latitude Retrieval", () => {
     //Arrange
     const html_file = fs.readFileSync(
       new URL(
-        "./middle_littleton_tithe_barn_page_source.html",
+        "./sample_page_sources/middle_littleton_tithe_barn_page_source.html",
         import.meta.url
       ),
       "utf8"
@@ -37,7 +40,7 @@ describe("Longitude, Latitude Retrieval", () => {
 });
 
 describe("Weather Data Fetch Request", () => {
-  it("should return test", async () => {
+  it("should return cod for the correct latitude", async () => {
     //Arrange
     const latitude = 27.98785;
     const longitude = 86.925026;
