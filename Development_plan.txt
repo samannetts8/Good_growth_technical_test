@@ -1,0 +1,4 @@
+1st Step
+
+Create a webpage scraper to flexibly extract the longitude and latitude of the property's location. Current plan is to extract the embedded Google Maps data to retrieve this, but I'll continue to investigate
+Incorporate TDD 
