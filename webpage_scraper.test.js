@@ -35,4 +35,18 @@ describe("Longitude, Latitude Retrieval", () => {
 
     expect(result).toEqual(answer);
   });
+
+  it("should return the whole Google Maps element", () => {
+    //Arrange
+    const html_file = fs.readFileSync(
+      new URL("./packwood_house_page_source.html", import.meta.url),
+      "utf8"
+    );
+    //Act
+    const result = webpage_scraper(html_file);
+    //Assert
+    const answer = `<a href="https://www.google.com/maps/dir/?api=1&amp;destination=52.3465%2C-1.74551" id="propertyViewOnGoogleMaps_image"></a>`;
+
+    expect(result).toEqual(answer);
+  });
 });
