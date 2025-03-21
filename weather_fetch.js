@@ -24,10 +24,18 @@ export default async function weather_fetch(latitude, longitude) {
     }
 
     const weather_data = result.list;
+    const filtered_weather_data = weather_data.filter(
+      (weather_data) =>
+        Number(weather_data.dt_txt.substring(11, 13)) >= 9 &&
+        Number(weather_data.dt_txt.substring(11, 13)) <= 18
+    );
 
-    return weather_data;
+    return filtered_weather_data;
   } catch (error) {
     console.log(`Weather fetch failed: ${error.message}`);
     throw error;
   }
 }
+
+//Test case from given example endpoint
+console.log(await weather_fetch(27.98785, 86.925026));

@@ -123,20 +123,49 @@ function getWindDirectionArrow(wind_direction_deg) {
   return arrows[Math.round(wind_direction_deg / 45) % 8];
 }
 
-export function createWeatherDiv(weatherData) {
+// This function creates a single weather widget
+function createSingleWeatherWidget(weatherData) {
   const {
     main: { temp, temp_min, temp_max },
     wind: { speed, deg },
     rain,
-  } = weatherData[0];
-  const { main, description, icon } = weatherData[0].weather[0];
+  } = weatherData;
+  const { main, description, icon } = weatherData.weather[0];
   const arrow = getWindDirectionArrow(deg);
-
   const icon_url = `http://openweathermap.org/img/wn/${icon}@2x.png`;
 
+  // Create HTML for a single weather forecast
+  const widgetHTML = `
+    <div class="weather-forecast-item">
+      <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC">${main}</h4>
+      <img src="${icon_url}" alt="${description}" />
+      <h5 class="weather-temp">${Math.round(temp)}°C</h5>
+      <div class="weather-temp">Min: ${Math.round(
+        temp_min
+      )}°C, Max: ${Math.round(temp_max)}°C</div>
+      <div class="weather-details">
+        <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
+        <div>Rain (Last 3 hours): ${rain["3h"] || 0} mm</div>
+      </div>
+    </div>
+  `;
+  return widgetHTML;
+}
+
+// This function creates the accordion container with all weather widgets
+export function createWeatherDiv(weatherDataArray) {
+  // Create container div for the accordion
   const weather_div = document.createElement("div");
   weather_div.id = `place-weather`;
   weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
+
+  // Generate the HTML for all weather widgets
+  let widgetsHTML = "";
+  weatherDataArray.forEach((data) => {
+    widgetsHTML += createSingleWeatherWidget(data);
+  });
+
+  // Create the complete accordion HTML structure
   weather_div.innerHTML = `
   <h2 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 bZUtjF">
     <button aria-expanded="false" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
@@ -155,28 +184,39 @@ export function createWeatherDiv(weatherData) {
       <section class="Sectionstyle__StyledSection-sc-1rnt8u1-0 eigAqT">
         <div class="Sectionstyle__Inner-sc-1rnt8u1-1 hopRYb">
           <div class="Sectionstyle__Content-sc-1rnt8u1-3">
-            <div class="weather-widget">
-              <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC">${main}</h4>
-              <img src="${icon_url}" alt="${description}" />
-              <h5 class="weather-temp">${Math.round(temp)}°C</h5>
-              <div class="weather-temp">Min: ${Math.round(
-                temp_min
-              )}°C, Max: ${Math.round(temp_max)}°C</div>
-              <div class="weather-details">
-                <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
-                <div>Rain (Last 3 hours): ${rain["3h"]} mm</div>
-              </div>
+            <div class="weather-widget-container">
+              ${widgetsHTML}
             </div>
+            <style>
+              .weather-widget-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: space-around;
+              }
+              .weather-forecast-item {
+                flex: 1;
+                min-width: 200px;
+                max-width: 300px;
+                text-align: center;
+                padding: 10px;
+                border: 1px solid #dedede;
+                border-radius: 5px;
+                margin-bottom: 10px;
+              }
+            </style>
           </div>
         </div>
       </section>
     </div>
   </div>
-`;
+  `;
+
   return weather_div;
 }
 
 export function addElement() {
+  // Pass the entire example_weather_data array to create multiple widgets
   const element = createWeatherDiv(example_weather_data);
   const targetNeighbour = document.getElementById(`place-opening-times`);
   targetNeighbour.parentElement.insertBefore(
