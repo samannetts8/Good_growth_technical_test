@@ -83,17 +83,18 @@ async function weather_fetch(latitude, longitude) {
 }
 
 function getWindDirectionArrow(wind_direction_deg) {
-  const arrows = ["↓ S", "↙ SW", "← W", "↖ NW", "↑ N", "↗ NE", "→ E", "↘ SE"];
+  const arrows = ["↑ N", "↗ NE", "→ E", "↘ SE", "↓ S", "↙ SW", "← W", "↖ NW"];
   return arrows[Math.round(wind_direction_deg / 45) % 8];
 }
 
 function createWeatherDiv(weatherData) {
+  console.log("weatherData activate");
   const {
     main: { temp, temp_min, temp_max },
     wind: { speed, deg },
     rain,
-  } = weatherData[0];
-  const { main, description, icon } = weatherData[0].weather[0];
+  } = weatherData;
+  const { main, description, icon } = weatherData.weather[0];
   const arrow = getWindDirectionArrow(deg);
 
   const icon_url = `http://openweathermap.org/img/wn/${icon}@2x.png`;
@@ -103,18 +104,18 @@ function createWeatherDiv(weatherData) {
   weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
   weather_div.innerHTML = `
   <h2 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 bZUtjF">
-    <button aria-expanded="false" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
+    <button aria-expanded="true" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
       <span class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 AccordionItemstyle__StyledAccordionItemHeading-sc-zx14w3-0 bZUtjF fcsAzv">Weather Forecast</span>
       <div class="SingleAccordionstyle__StyledIconWrapper-sc-1i82miq-0 fNhssB">
         <span class="Iconstyle__SVGWrapper-sc-461blh-0 hJKaYd SingleAccordionstyle__StyledIcon-sc-1i82miq-1 FYAss" data-ui-icon-type="chevronDown">
-          <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="100%" height="100%">
+          <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="false" focusable="false" viewBox="0 0 16 16" width="100%" height="100%">
             <g><path d="M1.4,3.5L8,10.1l6.6-6.6L16,4.9l-7.3,7.3c-0.2,0.2-0.4,0.3-0.7,0.3c-0.3,0-0.5-0.1-0.7-0.3L0,4.9L1.4,3.5z"></path></g>
           </svg>
         </span>
       </div>
     </button>
   </h2>
-  <div id="accordion-item-body--place-weather" aria-hidden="true" aria-labelledby="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionBody-sc-1i82miq-4 fwPNxK accordion-item-collapsed" style="--calc-height: 0px; visibility: hidden;">
+  <div id="accordion-item-body--place-weather" aria-hidden="true" aria-labelledby="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionBody-sc-1i82miq-4 fwPNxK" style="--calc-height: auto; visibility: visible;">
     <div>
       <section class="Sectionstyle__StyledSection-sc-1rnt8u1-0 eigAqT">
         <div class="Sectionstyle__Inner-sc-1rnt8u1-1 hopRYb">
@@ -152,8 +153,11 @@ async function collated_script() {
   const string_DOM = document.documentElement.innerHTML;
   const { latitude, longitude } = lonlatRetriever(string_DOM);
   const result = await weather_fetch(latitude, longitude);
-  const element = createWeatherDiv(result);
-  addElement(element);
+  console.log(result);
+  for (let i = 0; i < result.length; i++) {
+    let element = createWeatherDiv(result[i]);
+    addElement(element);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
