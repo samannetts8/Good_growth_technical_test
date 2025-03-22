@@ -21,7 +21,6 @@ function handleError(message) {
 }
 
 function lonlatRetriever() {
-  // Browser Version:
   const google_map_tag = document.getElementById(
     "propertyViewOnGoogleMaps_image"
   );
@@ -62,22 +61,21 @@ function lonlatRetriever() {
   return result;
 }
 
-console.log(lonlatRetriever());
-const { latitude, longitude } = lonlatRetriever();
-console.log(latitude);
-console.log(longitude);
-
 async function weather_fetch(latitude, longitude) {
   try {
     if (!latitude || !longitude) {
       throw new Error("Missing required parameters: latitude and longitude");
     }
 
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
+      throw new Error("Latitude and longitude must be numbers");
+    }
+
     const response = await fetch(
       `https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=${latitude}&lon=${longitude}`
     );
     if (!response) {
-      throw new Error("Unable to fetch weather api data");
+      throw new Error("Unable to fetch weather API data");
     }
 
     if (!response.ok) {
@@ -107,49 +105,74 @@ async function weather_fetch(latitude, longitude) {
 }
 
 function getWindDirectionArrow(wind_direction_deg) {
-  const arrows = ["↑ N", "↗ NE", "→ E", "↘ SE", "↓ S", "↙ SW", "← W", "↖ NW"];
-  return arrows[Math.round(wind_direction_deg / 45) % 8];
+  try {
+    if (wind_direction_deg === undefined || wind_direction_deg === null) {
+      return "";
+    }
+
+    // Ensure the input is a number
+    const degree = Number(wind_direction_deg);
+
+    if (isNaN(degree)) {
+      handleError(`Invalid wind direction degree: ${wind_direction_deg}`);
+      return;
+    }
+
+    const arrows = ["↑ N", "↗ NE", "→ E", "↘ SE", "↓ S", "↙ SW", "← W", "↖ NW"];
+    return arrows[Math.round(degree / 45) % 8];
+  } catch (error) {
+    handleError("Failed to determine wind direction");
+    return "";
+  }
 }
 
 function createSingleWeatherWidget(weatherData) {
-  const {
-    main: { temp, temp_min, temp_max },
-    wind: { speed, deg },
-    rain,
-    dt_txt,
-  } = weatherData;
-  const { main, description, icon } = weatherData.weather[0];
-  const arrow = getWindDirectionArrow(deg);
-  const icon_url = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-  //Capitalise description to be used as title
-  const description_array = description.split(" ");
-  const description_capitals = description_array.map((word) => {
-    return word.charAt(0).toUpperCase() + word.substring(1, word.length);
-  });
-  const title_description = description_capitals.join(" ");
-  //Date information retrieval
-  const time = dt_txt.substring(11, 16);
-  const date = dt_txt.substring(0, 10).split("-");
-  const day = date[2];
+  try {
+    if (!weatherData) {
+      throw new Error("Weather data is missing");
+    }
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const month = months[Number(date[1] - 1)];
+    const {
+      main: { temp, temp_min, temp_max },
+      wind: { speed, deg },
+      rain,
+      dt_txt,
+    } = weatherData;
 
-  // Create HTML for a single weather forecast
-  const widgetHTML = `
+    const { main, description, icon } = weatherData.weather[0];
+    const arrow = getWindDirectionArrow(deg);
+    const icon_url = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+    //Capitalise description to be used as title
+    const description_array = description.split(" ");
+    const description_capitals = description_array.map((word) => {
+      return word.charAt(0).toUpperCase() + word.substring(1, word.length);
+    });
+    const title_description = description_capitals.join(" ");
+
+    //Date information retrieval
+    const time = dt_txt.substring(11, 16);
+    const date = dt_txt.substring(0, 10).split("-");
+    const day = date[2];
+
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const month = months[Number(date[1] - 1)];
+
+    // HTML widget structure
+    const widgetHTML = `
     <div class="weather-forecast-item" style="display: flex; flex-direction: column; padding: 15px;">
       <!-- Title -->
       <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC" style="font-weight: bold;">${time}, ${day} ${month}</h4>
@@ -158,8 +181,8 @@ function createSingleWeatherWidget(weatherData) {
       <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 12px;">
         <img src="${icon_url}" alt="${description}" style="width: 75px; height: 75px; margin-bottom: 5px;" />
         <h5 class="weather-temp" style="margin: 0; font-size: 1.2em; font-weight: bold;">${main}<br>${Math.round(
-    temp
-  )}°C</h5>
+      temp
+    )}°C</h5>
       </div>
       
       <!-- Details below, left-aligned -->
@@ -176,24 +199,32 @@ function createSingleWeatherWidget(weatherData) {
       </div>
     </div>
   `;
-  return widgetHTML;
+    return widgetHTML;
+  } catch (error) {
+    handleError(error.message);
+    return "";
+  }
 }
 
-// This function creates the accordion container with all weather widgets
+// Create broad Upcoming Weather Forecast menu
 function createWeatherDiv(weatherDataArray) {
-  // Create container div for the accordion
-  const weather_div = document.createElement("div");
-  weather_div.id = `place-weather`;
-  weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
+  try {
+    if (!weatherDataArray || !Array.isArray(weatherDataArray)) {
+      throw new Error("Invalid weather data array");
+    }
 
-  // Generate the HTML for all weather widgets
-  let widgetsHTML = "";
-  weatherDataArray.forEach((data) => {
-    widgetsHTML += createSingleWeatherWidget(data);
-  });
+    // Container div for menu
+    const weather_div = document.createElement("div");
+    weather_div.id = `place-weather`;
+    weather_div.className = `AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf`;
 
-  // Create the complete accordion HTML structure
-  weather_div.innerHTML = `
+    let widgetsHTML = "";
+    weatherDataArray.forEach((data) => {
+      widgetsHTML += createSingleWeatherWidget(data);
+    });
+
+    // Upcoming Weather Forecast menu widget structure
+    weather_div.innerHTML = `
   <h2 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 bZUtjF">
     <button aria-expanded="false" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
       <span class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 AccordionItemstyle__StyledAccordionItemHeading-sc-zx14w3-0 bZUtjF fcsAzv">Upcoming Weather Forecast</span>
@@ -242,15 +273,36 @@ function createWeatherDiv(weatherDataArray) {
   </div>
   `;
 
-  return weather_div;
+    return weather_div;
+  } catch (error) {
+    handleError(error.message);
+    return "";
+  }
 }
 
 function addElement(element) {
-  const targetNeighbour = document.getElementById(`place-opening-times`);
-  targetNeighbour.parentElement.insertBefore(
-    element,
-    targetNeighbour.nextSibling
-  );
+  try {
+    if (!element) {
+      throw new Error("Cannot add null element to page");
+    }
+    const targetNeighbour = document.getElementById(`place-opening-times`);
+
+    if (!targetNeighbour) {
+      throw new Error("Target element for insertion not found");
+    }
+
+    if (!targetNeighbour.parentElement) {
+      throw new Error("Target element has no parent");
+    }
+
+    targetNeighbour.parentElement.insertBefore(
+      element,
+      targetNeighbour.nextSibling
+    );
+  } catch (error) {
+    handleError(error.message);
+    return "";
+  }
 }
 
 async function collated_script() {
@@ -287,7 +339,6 @@ async function collated_script() {
             : "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf";
         }
 
-        // Update ARIA attributes
         this.setAttribute("aria-expanded", newIsExpanded.toString());
         accordionBody.setAttribute("aria-hidden", (!newIsExpanded).toString());
 
