@@ -1,6 +1,6 @@
 # Good Growth Technical Test - Sam Annetts Submission
 
-## Final solution found in collated_script.js
+#### Final solution found in collated_script.js, can be used through Google Snippets
 
 ## Process Explanation
 
