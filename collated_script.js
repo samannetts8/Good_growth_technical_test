@@ -1,21 +1,30 @@
+function getABTestGroup() {
+  const cookieMatch = document.cookie.match(/ab_weather_widget=([AB])/);
+
+  if (cookieMatch) {
+    console.log(`Existing CookieMatch: ${cookieMatch}`);
+    return cookieMatch[1];
+  }
+
+  const randomGroup = Math.random() < 0.5 ? "A" : "B";
+  console.log(`New CookieMatch group assigned: ${randomGroup}`);
+  const expirationDays = 30;
+  document.cookie = `ab_weather_widget=${randomGroup}; path=/; max-age=${
+    86400 * expirationDays
+  }`;
+  return randomGroup;
+}
+
 function handleError(message) {
   console.error(`Error: ${message}`);
   return null;
 }
 
-function lonlatRetriever(string_DOM) {
-  const parser = new DOMParser();
-  const html_file = parser.parseFromString(string_DOM, "text/html");
-  console.log(html_file);
-  //find google maps element in HTML
-  const google_map_tag = html_file.getElementById(
+function lonlatRetriever() {
+  // Browser Version:
+  const google_map_tag = document.getElementById(
     "propertyViewOnGoogleMaps_image"
   );
-
-  // Browser Version:
-  // const google_map_tag = document.getElementById(
-  //   "propertyViewOnGoogleMaps_image"
-  // );
 
   if (!google_map_tag) {
     handleError("No Google Maps Element Detected");
@@ -84,16 +93,18 @@ async function weather_fetch(latitude, longitude) {
     }
 
     const weather_data = result.list;
+    const filtered_weather_data = weather_data.filter(
+      (weather_data) =>
+        Number(weather_data.dt_txt.substring(11, 13)) >= 8 &&
+        Number(weather_data.dt_txt.substring(11, 13)) <= 19
+    );
 
-    return weather_data;
+    return filtered_weather_data;
   } catch (error) {
     console.log(`Weather fetch failed: ${error.message}`);
     throw error;
   }
 }
-
-console.log(await weather_fetch(latitude, longitude));
-const result = await weather_fetch(latitude, longitude);
 
 function getWindDirectionArrow(wind_direction_deg) {
   const arrows = ["↑ N", "↗ NE", "→ E", "↘ SE", "↓ S", "↙ SW", "← W", "↖ NW"];
@@ -105,6 +116,7 @@ function createSingleWeatherWidget(weatherData) {
     main: { temp, temp_min, temp_max },
     wind: { speed, deg },
     rain,
+    dt_txt,
   } = weatherData;
   const { main, description, icon } = weatherData.weather[0];
   const arrow = getWindDirectionArrow(deg);
@@ -115,19 +127,52 @@ function createSingleWeatherWidget(weatherData) {
     return word.charAt(0).toUpperCase() + word.substring(1, word.length);
   });
   const title_description = description_capitals.join(" ");
+  //Date information retrieval
+  const time = dt_txt.substring(11, 16);
+  const date = dt_txt.substring(0, 10).split("-");
+  const day = date[2];
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const month = months[Number(date[1] - 1)];
 
   // Create HTML for a single weather forecast
   const widgetHTML = `
-    <div class="weather-forecast-item">
-      <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC">${title_description}</h4>
-      <img src="${icon_url}" alt="${description}" />
-      <h4 class="weather-temp">${Math.round(temp)}°C</h4>
-      <h5 class="weather-temp">Min: ${Math.round(
-        temp_min
-      )}°C, Max: ${Math.round(temp_max)}°C</h5>
-      <div class="weather-details">
-        <div>Wind: ${arrow}, ${Math.round(speed)} m/s</div>
-        <div>Rain (Last 3 hours): ${rain["3h"]} mm</div>
+    <div class="weather-forecast-item" style="display: flex; flex-direction: column; padding: 15px;">
+      <!-- Title -->
+      <h4 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC" style="font-weight: bold;">${time}, ${day} ${month}</h4>
+      
+      <!-- Icon and main temperature centered -->
+      <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 12px;">
+        <img src="${icon_url}" alt="${description}" style="width: 75px; height: 75px; margin-bottom: 5px;" />
+        <h5 class="weather-temp" style="margin: 0; font-size: 1.2em; font-weight: bold;">${main}<br>${Math.round(
+    temp
+  )}°C</h5>
+      </div>
+      
+      <!-- Details below, left-aligned -->
+      <div style="text-align: left; width: 100%;">
+        <div style="font-size: 0.8em; font-style: italic; margin-bottom: 5px;">
+          Min: ${Math.round(temp_min)}°C,<br> Max: ${Math.round(temp_max)}°C
+        </div>
+        <div style="font-size: 0.9em; font-style: italic; margin-bottom: 3px;">
+          Wind: ${arrow}, ${Math.round(speed)} m/s
+        </div>
+        <div style="font-size: 0.9em; font-style: italic;">
+          Rain: ${rain && rain["3h"] ? rain["3h"] + " mm" : "None"}
+        </div>
       </div>
     </div>
   `;
@@ -150,18 +195,18 @@ function createWeatherDiv(weatherDataArray) {
   // Create the complete accordion HTML structure
   weather_div.innerHTML = `
   <h2 class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 bZUtjF">
-    <button aria-expanded="true" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
-      <span class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 AccordionItemstyle__StyledAccordionItemHeading-sc-zx14w3-0 bZUtjF fcsAzv">Weather Forecast</span>
+    <button aria-expanded="false" aria-controls="accordion-item-body--place-weather" id="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionButton-sc-1i82miq-3 gKzSXk">
+      <span class="Typographystyle__HeadingLevel4-sc-86wkop-3 erqRvC SingleAccordionstyle__StyledHeading-sc-1i82miq-6 AccordionItemstyle__StyledAccordionItemHeading-sc-zx14w3-0 bZUtjF fcsAzv">Upcoming Weather Forecast</span>
       <div class="SingleAccordionstyle__StyledIconWrapper-sc-1i82miq-0 fNhssB">
         <span class="Iconstyle__SVGWrapper-sc-461blh-0 hJKaYd SingleAccordionstyle__StyledIcon-sc-1i82miq-1 FYAss" data-ui-icon-type="chevronDown">
-          <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="false" focusable="false" viewBox="0 0 16 16" width="100%" height="100%">
+          <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="100%" height="100%">
             <g><path d="M1.4,3.5L8,10.1l6.6-6.6L16,4.9l-7.3,7.3c-0.2,0.2-0.4,0.3-0.7,0.3c-0.3,0-0.5-0.1-0.7-0.3L0,4.9L1.4,3.5z"></path></g>
           </svg>
         </span>
       </div>
     </button>
   </h2>
-  <div id="accordion-item-body--place-weather" aria-hidden="true" aria-labelledby="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionBody-sc-1i82miq-4 fwPNxK accordion-item-collapsed" style="--calc-height: auto; visibility: visible;">
+  <div id="accordion-item-body--place-weather" aria-hidden="true" aria-labelledby="accordion-item-heading--place-weather" class="SingleAccordionstyle__AccordionBody-sc-1i82miq-4 fwPNxK accordion-item-collapsed" style="--calc-height: 0px; visibility: hidden;">
     <div>
       <section class="Sectionstyle__StyledSection-sc-1rnt8u1-0 eigAqT">
         <div class="Sectionstyle__Inner-sc-1rnt8u1-1 hopRYb">
@@ -171,22 +216,23 @@ function createWeatherDiv(weatherDataArray) {
             </div>
             <style>
               .weather-widget-container {
-              
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
                 gap: 20px;
-                justify-content: space-around;
+                justify-content: center;
+                padding: 10px;
               }
               .weather-forecast-item {
                 background-color: #dee2e6;
-                flex: 1;
-                min-width: 200px;
-                max-width: 300px;
+                width: 100%;
+                height: auto;
+                box-sizing: border-box;
                 text-align: center;
-                padding: 10px;
+                padding: 15px;
                 border: 1px solid #dedede;
                 border-radius: 5px;
-                margin-bottom: 10px;
+                display: flex;
+                flex-direction: column;
               }
             </style>
           </div>
@@ -207,54 +253,57 @@ function addElement(element) {
   );
 }
 
-const element = createWeatherDiv(result);
-console.log(addElement(element));
-
-const accordionButton = document.getElementById(
-  "accordion-item-heading--place-weather"
-);
-const accordionBody = document.getElementById(
-  "accordion-item-body--place-weather"
-);
-
-if (accordionButton && accordionBody) {
-  accordionButton.addEventListener("click", function (e) {
-    e.preventDefault();
-    const wrapper = this.closest(
-      ".AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1"
-    );
-    const isExpanded = this.getAttribute("aria-expanded") === "true";
-    const newIsExpanded = !isExpanded;
-
-    // Toggle wrapper class
-    if (wrapper) {
-      wrapper.className = newIsExpanded
-        ? "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 POCqK Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf"
-        : "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf";
-    }
-
-    // Update ARIA attributes
-    this.setAttribute("aria-expanded", newIsExpanded.toString());
-    accordionBody.setAttribute("aria-hidden", (!newIsExpanded).toString());
-
-    // Toggle visibility
-    accordionBody.classList.toggle("accordion-item-collapsed", !newIsExpanded);
-    accordionBody.style.visibility = newIsExpanded ? "visible" : "hidden";
-    accordionBody.style.setProperty(
-      "--calc-height",
-      newIsExpanded ? "auto" : "0px"
-    );
-  });
-}
-
 async function collated_script() {
-  const string_DOM = document.documentElement.innerHTML;
-  const { latitude, longitude } = lonlatRetriever(string_DOM);
-  const result = await weather_fetch(latitude, longitude);
-  let element = createWeatherDiv(result);
-  addElement(element);
+  const ABTestGroup = getABTestGroup();
+  if (ABTestGroup === "A") {
+    return;
+  } else {
+    const { latitude, longitude } = lonlatRetriever();
+    const result = await weather_fetch(latitude, longitude);
+    const element = createWeatherDiv(result);
+    addElement(element);
+
+    //Custom eventHandlers for accordion effect - can be removed once the above can access existing javascript eventHandlers
+    const accordionButton = document.getElementById(
+      "accordion-item-heading--place-weather"
+    );
+    const accordionBody = document.getElementById(
+      "accordion-item-body--place-weather"
+    );
+
+    if (accordionButton && accordionBody) {
+      accordionButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        const wrapper = this.closest(
+          ".AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1"
+        );
+        const isExpanded = this.getAttribute("aria-expanded") === "true";
+        const newIsExpanded = !isExpanded;
+
+        // Toggle wrapper class
+        if (wrapper) {
+          wrapper.className = newIsExpanded
+            ? "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 POCqK Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf"
+            : "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 eLpRXb Accordionstyle__StyledAccordionItem-sc-5agikf-0 NwcVf";
+        }
+
+        // Update ARIA attributes
+        this.setAttribute("aria-expanded", newIsExpanded.toString());
+        accordionBody.setAttribute("aria-hidden", (!newIsExpanded).toString());
+
+        // Toggle visibility
+        accordionBody.classList.toggle(
+          "accordion-item-collapsed",
+          !newIsExpanded
+        );
+        accordionBody.style.visibility = newIsExpanded ? "visible" : "hidden";
+        accordionBody.style.setProperty(
+          "--calc-height",
+          newIsExpanded ? "auto" : "0px"
+        );
+      });
+    }
+  }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await collated_script();
-});
+await collated_script();

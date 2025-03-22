@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import webpage_scraper from "./webpage_scraper";
+import webpage_scraper from "../individual_functions/webpage_scraper";
 import fs from "fs";
-import weather_fetch from "./weather_fetch";
+import weather_fetch from "../individual_functions/weather_fetch";
 
 describe("Longitude, Latitude Retrieval", () => {
   it("should extract specific Latitude and Longitude from Packwood URL", () => {
