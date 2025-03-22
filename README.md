@@ -1,5 +1,7 @@
 # Good Growth Technical Test - Sam Annetts Submission
 
+## Final Solution found in collated_script.js
+
 ## Process Explanation
 
 For this challenge, we have been asked to write some code which will display the upcoming week's weather for any of National Trust's online listed properties. The aim for this was to increase the probability of the users visiting a property.
