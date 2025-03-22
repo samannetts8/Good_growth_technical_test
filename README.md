@@ -14,7 +14,7 @@ Having now received the weather information, I extracted the key information tha
 
 When deciding what information to display, I opted to only show weather between the hours of 08:00 and 19:00. I did this because I believe this window would capture the time window that the properties were open for, whilst not overloading the user with too much 'unnecessary' information.
 
-Finally, I included a function that will for AB testing to be used. For context, A/B testing is a method used to compare two versions of a webpage (Version A and Version B) by randomly showing each version to different users. By measuring user behavior—such as clicks or conversions, National Trust can determine which version performs better. In this scenario, upon first visit, my function will attach a cookie to the user, labelling them as Group A or Group B. Group A will be met with the default version of the website, where Group B will be able to view the version with my weather cards included.
+Finally, I included a function that will allow AB testing to be used. For context, A/B testing is a method used to compare two versions of a webpage (Version A and Version B) by randomly showing each version to different users. By measuring user behavior—such as clicks or conversions, National Trust can determine which version performs better. In this scenario, upon first visit, my function will attach a cookie to the user, labelling them as Group A or Group B. Group A will be met with the default version of the website, where Group B will be able to view the version with my weather cards included.
 
 ### Note
 
